@@ -21,6 +21,7 @@ const plan = require('./api/plan');
 const post = require('./api/post');
 const reply = require('./api/reply');
 const weather = require('./api/weather');
+const mainWeather = require('./api/mainWeather');
 
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -34,5 +35,6 @@ app.use('/plan', plan)
 app.use('/post', post)
 app.use('/reply', reply)
 app.use('/weather', weather)
+app.use('/mainWeather', mainWeather)
 
 app.listen(4000)
