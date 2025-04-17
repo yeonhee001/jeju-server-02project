@@ -18,6 +18,7 @@ async function getUser(userId){
     return await collection.findOne({ userId });
 }
 
+//여행 일정 리스트
 plan.get('/user/:userId', async function (req, res) {
     await dataCtrl();
 
@@ -31,6 +32,7 @@ plan.get('/user/:userId', async function (req, res) {
     res.json( userData.allList )
 })
 
+//여행 일정 디테일
 plan.get('/user/:userId/:planId', async (req, res) => {
     await dataCtrl();
 
@@ -49,14 +51,40 @@ plan.get('/user/:userId/:planId', async (req, res) => {
     res.json( planlist );
 });
 
-plan.put('/', async function (req, res) {
+//여행 추가
+plan.post('/', async function (req, res) {
     await dataCtrl();
 
     const { userId, newList } = req.body;
     const userData = await getUser(userId);
+
+    if(userData) {
+        // 사용자 데이터가 있을 때
+        await collection.updateOne(
+            { userId },
+            { $push: { allList: newList }}
+        );
+    } else {
+        // 사용자 데이터가 없을 때
+        await collection.insertOne({
+            userId,
+            allList: [newList]
+        });
+    }
+    const updatedUser = await getUser(userId);
+    res.json(updatedUser.allList);
+})
+
+// 기존 일정 수정
+plan.put('/', async function (req, res) {
+    await dataCtrl();
     
+    const { userId, newList } = req.body;    
+    const userData = await getUser(userId);
+
     if (userData) {
         const listIndex = userData.allList.findIndex(list => list.id === newList.id);
+
         if (listIndex !== -1) {
             // 기존 체크리스트가 있다면 수정
             userData.allList[listIndex] = newList;
@@ -67,7 +95,6 @@ plan.put('/', async function (req, res) {
             console.log('저장 저장');
         }
     }
-});
 
 // 체크리스트 id 추가
 plan.put('/', async function (req, res) {
@@ -89,6 +116,20 @@ plan.put('/', async function (req, res) {
         }
     }
 });
+})
+
+//삭제
+plan.delete('/del', async function (req, res) {
+    await dataCtrl();
+
+    const {id, userId} = req.query
+    const update = await collection.updateOne(
+        { userId: userId },  // userId로 찾기
+        { $pull: { allList: { id: id } } }  // allList 배열에서 id로 항목 제거
+    );
+    
+    res.json(update)
+})
 
 
 module.exports = plan;
