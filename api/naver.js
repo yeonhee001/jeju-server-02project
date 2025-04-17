@@ -19,7 +19,7 @@ naver.get('/', async function (req, res) {
     const grant_type = 'authorization_code';
     const client_id = process.env.NAVER_CLIENT_ID;
     const client_secret = process.env.NAVER_SECRET;
-    const redirect_uri = `${process.env.REACT_APP_APIURL}/login/authnaver`;
+    const redirect_uri = `${process.env.REDIRECT_URI}/authnaver`;
 
     const code = req.query.code;
 
