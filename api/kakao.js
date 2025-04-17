@@ -17,7 +17,7 @@ async function dataCtrl(){
 kakao.get('/', async function (req, res) {
     const grant_type = 'authorization_code';
     const client_id = process.env.KAKAO_CLIENT_ID;
-    const redirect_uri = 'http://localhost:3000/login/authkakao';
+    const redirect_uri = `${process.env.REACT_APP_APIURL}/login/authkakao`;
     const {code} = req.query;
 
     // get token

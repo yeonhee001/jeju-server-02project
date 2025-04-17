@@ -19,7 +19,7 @@ google.get('/', async function (req, res) {
     const grant_type = 'authorization_code';
     const client_id = process.env.GOOGLE_CLIENT_ID;
     const client_secret = process.env.GOOGLE_SECRET;
-    const redirect_uri = 'http://localhost:3000/login/authgoogle';
+    const redirect_uri = `${process.env.REACT_APP_APIURL}/login/authgoogle`;
 
     const code = req.query.code;
 
