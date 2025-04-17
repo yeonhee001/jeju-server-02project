@@ -103,12 +103,14 @@ weather.get('/', async function (req, res) {
     
     const day2 = {
         pty: undefined,
-        wsd: undefined
+        wsd: undefined,
+        tem: undefined,
     };
 
     data2?.forEach(item => {
         if (item.category === "PTY") day2.pty = Number(item.obsrValue);
         if (item.category === "WSD") day2.wsd = Number(item.obsrValue);
+        if (item.category === "T1H") day2.tem = Number(item.obsrValue);
     });
 
     let skyText = a[0]?.fcstValue || ""; // ex: "구름 많음"
@@ -137,8 +139,11 @@ weather.get('/', async function (req, res) {
         fcstValue,
         wsd: day2.wsd,
         tmn,
-        tmx
+        tmx,
+        tem : day2.tem
     }];
+    
+    console.log(result);
     
     res.json(result)
 })
