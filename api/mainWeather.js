@@ -73,7 +73,7 @@ weather.get('/', async function (req, res) {
         if (i.sky.length > 0) {
             switch (Math.max(...i.sky)) {
             case 1: sky = "맑음"; break;
-            case 3: sky = "구름 많음"; break;
+            case 3: sky = "구름많음"; break;
             case 4: sky = "흐림"; break;
             }
         }
