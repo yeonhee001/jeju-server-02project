@@ -18,6 +18,7 @@ const kakao = require('./api/kakao');
 const like = require('./api/like');
 const naver = require('./api/naver');
 const plan = require('./api/plan');
+const pickplan = require('./api/pickplan');
 const post = require('./api/post');
 const reply = require('./api/reply');
 const weather = require('./api/weather');
@@ -32,6 +33,7 @@ app.use('/kakao', kakao)
 app.use('/like', like)
 app.use('/naver', naver)
 app.use('/plan', plan)
+app.use('/pickplan', pickplan)
 app.use('/post', post)
 app.use('/reply', reply)
 app.use('/weather', weather)
