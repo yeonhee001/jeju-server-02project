@@ -33,7 +33,7 @@ weather.get('/', async function (req, res) {
         }
     })
 
-    const data = getVilageFcst.data.response.body.items.item
+    const data = getVilageFcst?.data?.response?.body?.items?.item
     
     const day = {};
     data?.forEach((item)=>{
@@ -110,7 +110,7 @@ weather.get('/', async function (req, res) {
         }
     })
 
-    const data2 = getMidLandFcst.data.response.body.items.item
+    const data2 = getMidLandFcst?.data?.response?.body?.items?.item
 
     const wfList = data2[0] && Object.entries(data2[0])
     .filter(([key, _]) => key.startsWith("wf") && !key.includes("Pm"))
@@ -131,7 +131,7 @@ weather.get('/', async function (req, res) {
         }
     })
 
-    const data3 = getMidTa.data.response.body.items.item
+    const data3 = getMidTa?.data?.response?.body?.items?.item
 
     const tempList = data3[0] && Object.entries(data3[0])
     .filter(([key, _]) => !["regId", "Low", "High"].some(item=>key.includes(item)))

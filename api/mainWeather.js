@@ -11,18 +11,18 @@ const base_date = format(now, 'yyyyMMdd');
 function getUltraSrtNcstBaseTime() {
     // 10분 전
     now.setMinutes(now.getMinutes() - 10);
-  
+
     const baseDate = format(now, 'yyyyMMdd');
     const baseHour = String(now.getHours()).padStart(2, '0');
-  
+
     // base_time은 시간단위만 필요해서 분은 00으로 고정
     const base_time = `${baseHour}00`;
-  
+
     return {
-      base_date: baseDate,
-      base_time: base_time
+    base_date: baseDate,
+    base_time: base_time
     };
-  }
+}
 
 weather.get('/', async function (req, res) {
     const getVilageFcst = await axios.get('http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst',{
@@ -36,7 +36,7 @@ weather.get('/', async function (req, res) {
             ny : "38",
         }
     })
-    const data = getVilageFcst.data.response.body.items.item
+    const data = getVilageFcst?.data?.response?.body?.items?.item
 
     const day = {};
     data?.forEach(item=>{
@@ -99,7 +99,7 @@ weather.get('/', async function (req, res) {
         }
     })
 
-    const data2 = getUltraSrtNcst.data.response.body.items.item
+    const data2 = getUltraSrtNcst?.data?.response?.body?.items?.item
     
     const day2 = {
         pty: undefined,
