@@ -29,6 +29,21 @@ reply.get('/:postId', async function (req, res) {
   }
 });
 
+// 댓글 가져오기: 특정 userId 기준 댓글
+reply.get('/user/:userId', async (req, res) => {
+  await dataCtrl();
+
+  const { userId } = req.params;
+
+  try {
+    const comments = await collection.find({ userId }).toArray();
+    res.json(comments);
+  } catch (error) {
+    console.error('유저 게시글 조회 실패:', error);
+    res.status(500).json({ message: '게시글 조회 실패', error });
+  }
+});
+
 // 댓글 수 가져오기
 reply.get('/count/:postId', async function (req, res) {
   await dataCtrl();

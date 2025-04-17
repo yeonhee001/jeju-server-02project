@@ -16,6 +16,7 @@ const check = require('./api/check');
 const google = require('./api/google');
 const kakao = require('./api/kakao');
 const like = require('./api/like');
+const triplike = require('./api/triplike');
 const naver = require('./api/naver');
 const plan = require('./api/plan');
 const pickplan = require('./api/pickplan');
@@ -31,6 +32,7 @@ app.use('/check', check)
 app.use('/google', google)
 app.use('/kakao', kakao)
 app.use('/like', like)
+app.use('/triplike', triplike)
 app.use('/naver', naver)
 app.use('/plan', plan)
 app.use('/pickplan', pickplan)

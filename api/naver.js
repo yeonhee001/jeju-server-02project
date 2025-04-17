@@ -17,8 +17,8 @@ async function dataCtrl(){
 // 네이버 로그인
 naver.get('/', async function (req, res) {
     const grant_type = 'authorization_code';
-    const client_id = 'icT5QnFH3PKg3iJmEhj3';
-    const client_secret = 'M63Rn8BSKO';
+    const client_id = process.env.NAVER_CLIENT_ID;
+    const client_secret = process.env.NAVER_SECRET;
     const redirect_uri = 'http://localhost:3000/login/authnaver';
 
     const code = req.query.code;
@@ -47,15 +47,15 @@ naver.get('/', async function (req, res) {
     
     await dataCtrl();
 
-    // id=user.data.id 찾기. 있으면 1 없으면 0
-    let check = await collection.find({id: naver_user.data.id}).toArray();
+    // userId 찾기. 있으면 1 없으면 0
+    let check = await collection.find({userId: naver_user.data.response.id}).toArray();
     if(!check.length){
         await collection.insertOne({
-            id: naver_user.data.response.id,
-            name: naver_user.data.response.name,
-            email: naver_user.data.response.email,
+            userId: naver_user.data.response.id,
+            userName: naver_user.data.response.name,
+            userEmail: naver_user.data.response.email,
         });
-        console.log('저장되었습니다.');
+        console.log(`${naver_user.data.response.name}님 네이버 로그인 정보가 저장되었습니다.`);
     }
 
     res.json( {...naver_user.data.response, naver_access_token} )
@@ -64,8 +64,8 @@ naver.get('/', async function (req, res) {
 // 네이버 로그아웃
 naver.get('/logout', async function (req, res) {
     const access_token = req.query.token;
-    const client_id = 'icT5QnFH3PKg3iJmEhj3';
-    const client_secret = 'M63Rn8BSKO';
+    const client_id = process.env.NAVER_CLIENT_ID;
+    const client_secret = process.env.NAVER_SECRET;
 
     if (!access_token) {
         return res.status(400).json({ error: 'Access token missing' });
