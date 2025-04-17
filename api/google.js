@@ -17,8 +17,8 @@ async function dataCtrl(){
 
 google.get('/', async function (req, res) {
     const grant_type = 'authorization_code';
-    const client_id = '1052969226706-hjrov0sppsubs5s32a29e9fjqo13k8tg.apps.googleusercontent.com';
-    const client_secret = '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';
+    const client_id = process.env.GOOGLE_CLIENT_ID;
+    const client_secret = process.env.GOOGLE_SECRET;
     const redirect_uri = 'http://localhost:3000/login/authgoogle';
 
     const code = req.query.code;
@@ -46,15 +46,15 @@ google.get('/', async function (req, res) {
 
     await dataCtrl();
 
-    // id=user.data.id 찾기. 있으면 1 없으면 0
-    let check = await collection.find({id: google_user.data.id}).toArray();
+    // userId 찾기. 있으면 1 없으면 0
+    let check = await collection.find({userId: google_user.data.id}).toArray();
     if(!check.length){
         await collection.insertOne({
-            id: google_user.data.id,
-            name: google_user.data.name,
-            email: google_user.data.email
+            userId: google_user.data.id,
+            userName: google_user.data.name,
+            userEmail: google_user.data.email
         });
-        console.log('저장되었습니다.');
+        console.log(`${google_user.data.name}님 구글 로그인 정보가 저장되었습니다.`);
     }
 
     res.json( {...google_user.data, google_access_token} )

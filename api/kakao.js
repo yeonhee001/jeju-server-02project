@@ -16,7 +16,7 @@ async function dataCtrl(){
 
 kakao.get('/', async function (req, res) {
     const grant_type = 'authorization_code';
-    const client_id = 'f86a88750c261ba4c1ffd8113fa7f753';
+    const client_id = process.env.KAKAO_CLIENT_ID;
     const redirect_uri = 'http://localhost:3000/login/authkakao';
     const {code} = req.query;
 
@@ -45,14 +45,14 @@ kakao.get('/', async function (req, res) {
 
     await dataCtrl();
 
-    // id=user.data.id 찾기. 있으면 1 없으면 0
-    let check = await collection.find({id: kakao_user.data.id}).toArray();
+    // userId 찾기. 있으면 1 없으면 0
+    let check = await collection.find({userId: kakao_user.data.id}).toArray();
     if(!check.length){
         await collection.insertOne({
-            id: kakao_user.data.id,
-            name: kakao_user.data.properties?.nickname
+            userId: kakao_user.data.id,
+            userName: kakao_user.data.properties?.nickname
         });
-        console.log('저장되었습니다.');
+        console.log(`${kakao_user.nickname}님 카카오 로그인 정보가 저장되었습니다.`);
     }
 
     res.json( {...kakao_user.data, kakao_access_token} )
