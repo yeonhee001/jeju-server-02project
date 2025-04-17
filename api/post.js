@@ -1,11 +1,17 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
-const post = express.Router();
+const axios = require('axios');
 const { MongoClient, ObjectId } = require('mongodb');
-const uri = process.env.MONGODB;
-const client = new MongoClient(uri);
+require('dotenv').config();
 
+const post = express.Router();
+
+// 환경 변수
+const uri = process.env.MONGODB;
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID;
+
+// MongoDB 클라이언트
+const client = new MongoClient(uri);
 let postCollection;
 let commentCollection;
 
@@ -19,32 +25,73 @@ async function dataCtrl() {
   commentCollection = db.collection('comments');
 }
 
-// multer 설정: 이미지 업로드 처리
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // 업로드 폴더 설정
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)); // 파일 이름에 타임스탬프 추가
+// multer 설정: 메모리 저장소
+const storage = multer.memoryStorage();
+const upload = multer({ storage }).array('images', 4); // 최대 4개 이미지 업로드
+
+// Imgur 이미지 업로드 함수
+async function uploadToImgur(buffer) {
+  try {
+    const response = await axios.post(
+      'https://api.imgur.com/3/image',
+      {
+        image: buffer.toString('base64'),
+        type: 'base64',
+      },
+      {
+        headers: {
+          Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
+        },
+      }
+    );
+    return response.data.data.link;
+  } catch (error) {
+    console.error('Imgur 업로드 실패:', error.response?.data || error.message);
+    throw new Error('Imgur 업로드 실패');
+  }
+}
+
+// 다중 이미지 업로드 전용 라우터
+post.post('/images', upload, async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: '업로드할 이미지가 없습니다.' });
+    }
+
+    const urls = await Promise.all(
+      req.files.map(file => uploadToImgur(file.buffer))
+    );
+
+    console.log(urls);
+
+    res.json(urls); // 이미지 URL 배열 반환
+  } catch (error) {
+    console.error('다중 이미지 업로드 실패:', error);
+    res.status(500).json({ message: '이미지 업로드 실패', error: error.message });
   }
 });
 
-const upload = multer({ storage: storage });
-
-// 새 글 등록 (이미지 포함)
-post.post('/', upload.single('image'), async (req, res) => {
+// 새 게시글 등록 (이미지는 클라이언트가 URL로 전달)
+post.post('/', async (req, res) => {
   await dataCtrl();
   try {
+    const { subject, title, description, imageUrls, userId, username } = req.body;
+
     const postData = {
-      ...req.body,
+      subject,
+      title,
+      description,
+      imageUrls: imageUrls || [], // 이미지 URL 배열 저장
+      userId,
+      username,
       createdAt: new Date().toISOString(),
-      imageUrl: req.file ? `/uploads/${req.file.filename}` : null, // 이미지 URL 저장
     };
+
     const result = await postCollection.insertOne(postData);
     res.json({ message: '등록 성공', id: result.insertedId });
   } catch (error) {
     console.error('등록 실패:', error);
-    res.status(500).json({ message: '등록 실패', error });
+    res.status(500).json({ message: '등록 실패', error: error.message });
   }
 });
 
@@ -61,7 +108,7 @@ post.get('/', async (req, res) => {
 });
 
 // 게시글 단건 조회
-post.get('/:id', async (req, res) => {
+post.get('/update/:id', async (req, res) => {
   await dataCtrl();
   const { id } = req.params;
   try {
@@ -83,7 +130,6 @@ post.put('/:id', async (req, res) => {
   const updatedPost = req.body;
 
   try {
-    // id가 잘못된 형식일 경우 대비
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: '유효하지 않은 ID 형식입니다.' });
     }
@@ -117,19 +163,16 @@ post.delete('/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    // id가 잘못된 형식일 경우 대비
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: '유효하지 않은 ID 형식입니다.' });
     }
 
-    // 게시글 삭제
     const result = await postCollection.deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
       return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
     }
 
-    // 게시글이 삭제된 후 해당 게시글에 대한 댓글도 삭제
     await commentCollection.deleteMany({ postId: id });
 
     res.json({ message: '게시글 삭제 성공' });
@@ -170,6 +213,24 @@ post.get('/comment/:postId', async (req, res) => {
   } catch (error) {
     console.error('댓글 조회 실패:', error);
     res.status(500).json({ message: '댓글 조회 실패', error });
+  }
+});
+
+// 이미지 목록 조회 (페이지네이션)
+post.get('/images', async (req, res) => {
+  await dataCtrl();
+  const { page} = req.query; // 기본값으로 1 페이지 설정
+  const limit = 30; // 한 번에 가져올 이미지 수
+  const skip = (page - 1) * limit; // 페이지에 맞춰서 건너뛸 데이터 수
+
+  try {
+    const posts = await postCollection.find().skip(skip).limit(limit).toArray();
+    console.log(posts)
+    const images = posts.map(post => post.imageUrls[0]).flat(Infinity); // 모든 게시글의 이미지 URL을 가져옴
+    res.json(images.filter(img=>img!=null)); // 이미지 URL 배열만 반환
+  } catch (error) {
+    console.error('이미지 조회 실패:', error);
+    res.status(500).json({ message: '이미지 조회 실패', error });
   }
 });
 
