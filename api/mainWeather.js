@@ -113,7 +113,7 @@ weather.get('/', async function (req, res) {
         if (item.category === "T1H") day2.tem = Number(item.obsrValue);
     });
 
-    let skyText = a[0]?.fcstValue || ""; // ex: "구름 많음"
+    let skyText = a[0]?.fcstValue || ""; // ex: "구름많음"
     let tmn = a[0]?.tmn;
     let tmx = a[0]?.tmx;
 
@@ -142,8 +142,6 @@ weather.get('/', async function (req, res) {
         tmx,
         tem : day2.tem
     }];
-    
-    console.log(result);
     
     res.json(result)
 })

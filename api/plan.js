@@ -78,7 +78,6 @@ plan.post('/', async function (req, res) {
 // 기존 일정 수정
 plan.put('/', async function (req, res) {
     await dataCtrl();
-    
     const { userId, newList } = req.body;    
     const userData = await getUser(userId);
 
@@ -95,27 +94,9 @@ plan.put('/', async function (req, res) {
             console.log('저장 저장');
         }
     }
-
-// 체크리스트 id 추가
-plan.put('/', async function (req, res) {
-    await dataCtrl();
-
-    const { userId, planId, checkId } = req.body;
-    const userData = await getUser(userId);
-    
-    if (userData) {
-        const planIndex = userData.allList.findIndex(list => list.id === planId);
-        if (planIndex !== -1) {
-            // planId가 일치하는 데이터의 checkId를 수정
-            userData.allList[planIndex].checkId = checkId;
-            await collection.updateOne(
-                { userId },
-                { $set: { allList: userData.allList } }
-            );
-            console.log(`${userId}님의 여행(${planId})에 체크리스트 아이디(${checkId})가 추가되었습니다!`);
-        }
-    }
-});
+    return  res.status(200).json({
+        message: '수정완료',
+      });
 })
 
 //삭제
