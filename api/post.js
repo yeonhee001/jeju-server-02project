@@ -51,7 +51,7 @@ async function uploadToImgur(buffer) {
   }
 }
 
-// 다중 이미지 업로드 전용 라우터
+// 다중 이미지 업로드
 post.post('/images', upload, async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -61,17 +61,14 @@ post.post('/images', upload, async (req, res) => {
     const urls = await Promise.all(
       req.files.map(file => uploadToImgur(file.buffer))
     );
-
-    console.log(urls);
-
-    res.json(urls); // 이미지 URL 배열 반환
+    res.json(urls);
   } catch (error) {
     console.error('다중 이미지 업로드 실패:', error);
     res.status(500).json({ message: '이미지 업로드 실패', error: error.message });
   }
 });
 
-// 새 게시글 등록 (이미지는 클라이언트가 URL로 전달)
+// 게시글 등록
 post.post('/', async (req, res) => {
   await dataCtrl();
   try {
@@ -81,7 +78,7 @@ post.post('/', async (req, res) => {
       subject,
       title,
       description,
-      imageUrls: imageUrls || [], // 이미지 URL 배열 저장
+      imageUrls: imageUrls || [],
       userId,
       username,
       createdAt: new Date().toISOString(),
@@ -95,7 +92,7 @@ post.post('/', async (req, res) => {
   }
 });
 
-// 게시글 목록 조회
+// 게시글 전체 조회
 post.get('/', async (req, res) => {
   await dataCtrl();
   try {
@@ -230,18 +227,25 @@ post.get('/comment/:postId', async (req, res) => {
   }
 });
 
-// 이미지 목록 조회 (페이지네이션)
+// 이미지 목록 조회 (게시글 ID 포함)
 post.get('/images', async (req, res) => {
   await dataCtrl();
-  const { page} = req.query; // 기본값으로 1 페이지 설정
-  const limit = 30; // 한 번에 가져올 이미지 수
-  const skip = (page - 1) * limit; // 페이지에 맞춰서 건너뛸 데이터 수
+  const { page } = req.query;
+  const limit = 30;
+  const skip = (page - 1) * limit;
 
   try {
     const posts = await postCollection.find().skip(skip).limit(limit).toArray();
-    console.log(posts)
-    const images = posts.map(post => post.imageUrls[0]).flat(Infinity); // 모든 게시글의 이미지 URL을 가져옴
-    res.json(images.filter(img=>img!=null)); // 이미지 URL 배열만 반환
+
+    const data = posts
+      .filter(post => post.imageUrls && post.imageUrls[0])
+      .map(post => ({
+        id: post._id,
+        imageUrl: post.imageUrls[0],
+        post
+      }));
+
+    res.json(data);
   } catch (error) {
     console.error('이미지 조회 실패:', error);
     res.status(500).json({ message: '이미지 조회 실패', error });
