@@ -143,8 +143,6 @@ weather.get('/', async function (req, res) {
         tem : day2.tem
     }];
     
-    console.log(result);
-    
     res.json(result)
 })
 
