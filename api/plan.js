@@ -91,12 +91,11 @@ plan.put('/', async function (req, res) {
                 { userId },
                 { $set: { allList: userData.allList } }
             );
-            console.log('저장 저장');
         }
     }
     return  res.status(200).json({
         message: '수정완료',
-      });
+    });
 })
 
 //삭제
