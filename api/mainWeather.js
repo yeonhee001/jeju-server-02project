@@ -1,6 +1,6 @@
 const express = require('express');
 const axios = require('axios');
-const weather = express.Router();
+const mainWeather = express.Router();
 const { format } = require('date-fns');
 
 const serviceKey = decodeURIComponent("K8Vk28tgFaV3Setxev%2FSjLml%2FGa%2BOdleeiTr7YuEGaq1mvhADIlqD3COKW4t5cP7b2%2FLYZQSsRsOgVfIQSd6HQ%3D%3D");
@@ -24,7 +24,7 @@ function getUltraSrtNcstBaseTime() {
     };
 }
 
-weather.get('/', async function (req, res) {
+mainWeather.get('/', async function (req, res) {
     const getVilageFcst = await axios.get('http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst',{
         params:{
             serviceKey,
@@ -113,7 +113,7 @@ weather.get('/', async function (req, res) {
         if (item.category === "T1H") day2.tem = Number(item.obsrValue);
     });
 
-    let skyText = a[0]?.fcstValue || ""; // ex: "구름 많음"
+    let skyText = a[0]?.fcstValue || ""; // ex: "구름많음"
     let tmn = a[0]?.tmn;
     let tmx = a[0]?.tmx;
 
@@ -143,9 +143,7 @@ weather.get('/', async function (req, res) {
         tem : day2.tem
     }];
     
-    console.log(result);
-    
     res.json(result)
 })
 
-module.exports = weather;
+module.exports = mainWeather;

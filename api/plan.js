@@ -78,7 +78,6 @@ plan.post('/', async function (req, res) {
 // 기존 일정 수정
 plan.put('/', async function (req, res) {
     await dataCtrl();
-    
     const { userId, newList } = req.body;    
     const userData = await getUser(userId);
 
@@ -92,10 +91,12 @@ plan.put('/', async function (req, res) {
                 { userId },
                 { $set: { allList: userData.allList } }
             );
-            console.log('저장 저장');
         }
     }
-});
+    return  res.status(200).json({
+        message: '수정완료',
+    });
+})
 
 //삭제
 plan.delete('/del', async function (req, res) {
