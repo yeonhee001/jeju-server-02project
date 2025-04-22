@@ -30,7 +30,6 @@ google.get('/', async function (req, res) {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        // data: qs.stringify({ grant_type, client_id, client_secret, redirect_uri, code })
         data: { grant_type, client_id, client_secret, redirect_uri, code }
     })
     let google_access_token = google_token.data.access_token;
