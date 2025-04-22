@@ -40,12 +40,12 @@ plan.get('/user/:userId/:planId', async (req, res) => {
     const userData = await getUser(userId);
 
     if (!userData) {
-        return res.status(404).json({ message: '유저 없음' });
+        return res.json([]);
     }
 
     const planlist = userData.allList.find(item => item.id === planId);
     if (!planlist) {
-        return res.status(404).json({ message: '체크리스트 없음' });
+        return res.json([]);
     }
 
     res.json( planlist );

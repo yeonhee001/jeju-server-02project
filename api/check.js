@@ -26,7 +26,7 @@ check.get('/user/:userId', async (req, res) => {
     const userData = await getUser(userId);
 
     if(!userData) {
-        return res.status(404).json({ message: '해당 유저의 데이터가 없습니다.' });
+        return res.json([]);
     }
 
     res.json(userData.allList); 
@@ -40,12 +40,12 @@ check.get('/user/:userId/:checkId', async (req, res) => {
     const userData = await getUser(userId);
 
     if(!userData) {
-        return res.status(404).json({ message: '유저 없음' });
+        return res.json([]);
     }
 
     const checklist = userData.allList.find(item => item.id === checkId);
     if(!checklist) {
-        return res.status(404).json({ message: '체크리스트 없음' });
+        return res.json([]);
     }
 
     res.json(checklist);
@@ -113,7 +113,7 @@ check.put('/del', async (req, res) => {
         );
         res.json({ message: '체크리스트가 삭제되었습니다.' });
     } else {
-        res.status(404).json({ message: '유저 없음' });
+        res.json([]);
     }
 });
 
