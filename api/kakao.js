@@ -46,13 +46,13 @@ kakao.get('/', async function (req, res) {
     await dataCtrl();
 
     // userId 찾기. 있으면 1 없으면 0
-    let check = await collection.find({userId: kakao_user.data.id}).toArray();
+    let check = await collection.find({userId: String(kakao_user.data.id)}).toArray();
     if(!check.length){
         await collection.insertOne({
-            userId: kakao_user.data.id,
+            userId: String(kakao_user.data.id),
             userName: kakao_user.data.properties?.nickname
         });
-        console.log(`${kakao_user.nickname}님 카카오 로그인 정보가 저장되었습니다.`);
+        console.log(`${kakao_user.data.properties?.nickname}님 카카오 로그인 정보가 저장되었습니다.`);
     }
 
     res.json( {...kakao_user.data, kakao_access_token} )

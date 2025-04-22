@@ -72,20 +72,8 @@ post.post('/images', upload, async (req, res) => {
 post.post('/', async (req, res) => {
   await dataCtrl();
   try {
-    const { subject, title, description, imageUrls, userId, username } = req.body;
-
-    const postData = {
-      subject,
-      title,
-      description,
-      imageUrls: imageUrls || [],
-      userId,
-      username,
-      createdAt: new Date().toISOString(),
-    };
-
-    const result = await postCollection.insertOne(postData);
-    res.json({ message: '등록 성공', id: result.insertedId });
+    const result = await postCollection.insertOne(req.body);
+    res.json({ message: '등록 성공' });
   } catch (error) {
     console.error('등록 실패:', error);
     res.status(500).json({ message: '등록 실패', error: error.message });
