@@ -25,8 +25,8 @@ plan.get('/user/:userId', async function (req, res) {
     const userId = req.params.userId;
     const userData = await getUser(userId);
 
-    if (!userData) {
-        return res.status(404).json({ message: '해당 유저의 데이터가 없습니다.' });
+    if (!Object.keys(userData).length) {
+        return res.json({ message: '해당 유저의 데이터가 없습니다.' });
     }
     
     res.json( userData.allList )
