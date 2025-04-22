@@ -8,16 +8,21 @@ const base_date = format(now, 'yyyyMMdd');
 const serviceKey = decodeURIComponent("K8Vk28tgFaV3Setxev%2FSjLml%2FGa%2BOdleeiTr7YuEGaq1mvhADIlqD3COKW4t5cP7b2%2FLYZQSsRsOgVfIQSd6HQ%3D%3D");
 
 function getBaseTime() {
-    let hour = now.getHours();
+    const base = new Date(now); // 원본 보호
+    let hour = base.getHours();
+    let targetDate = new Date(base); // 최종 기준 시간 만들기
 
-    // 6시에서 18시 사이일 경우 base_time은 6시
     if (hour >= 6 && hour < 18) {
-        hour = 6;
-    } else { // 18시 이후는 base_time은 18시
-        hour = 18;
+        targetDate.setHours(6, 0, 0, 0);
+    } else if (hour >= 18) {
+        targetDate.setHours(18, 0, 0, 0);
+    } else {
+        // 새벽 0시 ~ 오전 5시 59분 → 전날 18시
+        targetDate.setDate(targetDate.getDate() - 1);
+        targetDate.setHours(18, 0, 0, 0);
     }
 
-    return format(now.setHours(hour, 0, 0, 0), 'yyyyMMddHHmm');
+    return format(targetDate, 'yyyyMMddHHmm');
 }
 
 weather.get('/', async function (req, res) {
@@ -33,9 +38,17 @@ weather.get('/', async function (req, res) {
         }
     })
 
-    const data = getVilageFcst?.data?.response?.body?.items?.item
+    const data = getVilageFcst?.data?.response?.body?.items?.item  
     
     const day = {};
+    
+    data?.sort((a, b) => {
+        if (a.fcstDate === b.fcstDate) {
+            return a.fcstTime.localeCompare(b.fcstTime);
+        }
+        return a.fcstDate.localeCompare(b.fcstDate);
+    });
+
     data?.forEach((item)=>{
         let date = item.fcstDate;
         const parsedDate = parse(date, 'yyyyMMdd', new Date());
@@ -61,7 +74,8 @@ weather.get('/', async function (req, res) {
         }
         if(item?.category == "TMN"){
             day[date].tmn = item.fcstValue;
-        }  
+        }
+
         });
 
         const a = [];
@@ -163,7 +177,7 @@ weather.get('/', async function (req, res) {
         })        
     }
     const allData = filteredList.concat(b)
-    
+
     res.json(allData)
 })
 
