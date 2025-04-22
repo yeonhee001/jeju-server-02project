@@ -120,7 +120,6 @@ like.get('/user-liked', async (req, res) => {
       .find({ userId })
       .toArray();
 
-      console.log(likedPosts)
     // 해당하는 likedPostId 배열을 리턴
     // const likedPostIds = likedPosts.map(like => like.postId);
     // 클라이언트에 응답
