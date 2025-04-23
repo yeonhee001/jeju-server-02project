@@ -154,7 +154,7 @@ post.put('/:id', async (req, res) => {
     );
 
     if (result.matchedCount === 0) {
-      return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
+      return res.json([]);
     }
 
     res.json({ message: '게시글 수정 성공' });
@@ -177,7 +177,7 @@ post.delete('/:id', async (req, res) => {
     const result = await postCollection.deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
-      return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
+      return res.json([]);
     }
 
     await commentCollection.deleteMany({ postId: id });
