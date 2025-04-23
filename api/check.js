@@ -117,6 +117,26 @@ check.put('/del', async (req, res) => {
     }
 });
 
+// 여행일정 삭제 시 연결 된 체크리스트 삭제
+check.put('/plan/del', async (req, res) => {
+    await dataCtrl();
+    
+    const { userId, planId } = req.body;
+    const userData = await getUser(userId);
+
+    if(userData) {
+        const newAllList = userData.allList.filter(item => item.planId !== planId);
+
+        await collection.updateOne(
+            { userId },
+            { $set: { allList: newAllList } }
+        );
+        res.json({ message: '체크리스트가 삭제되었습니다.' });
+    } else {
+        res.json([]);
+    }
+});
+
 
 
 
