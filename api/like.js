@@ -121,9 +121,9 @@ like.get('/user-liked', async (req, res) => {
       .toArray();
 
     // 해당하는 likedPostId 배열을 리턴
-    // const likedPostIds = likedPosts.map(like => like.postId);
+    const likedPostIds = likedPosts.map(like => like.postId);
     // 클라이언트에 응답
-    res.status(200).json({ likedPosts });
+    res.status(200).json({ likedPosts, likedPostIds });
   } catch (error) {
     console.error("좋아요한 게시물 조회 오류:", error);
     res.status(500).json({ error: "서버 오류" });
