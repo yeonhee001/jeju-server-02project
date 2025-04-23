@@ -14,6 +14,7 @@ const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID;
 const client = new MongoClient(uri);
 let postCollection;
 let commentCollection;
+let replyCollection; 
 
 // DB 연결 함수
 async function dataCtrl() {
@@ -23,11 +24,12 @@ async function dataCtrl() {
   const db = client.db('JejuDB');
   postCollection = db.collection('post');
   commentCollection = db.collection('comments');
+  replyCollection = db.collection('reply'); 
 }
 
 // multer 설정: 메모리 저장소
 const storage = multer.memoryStorage();
-const upload = multer({ storage }).array('images', 4); // 최대 4개 이미지 업로드
+const upload = multer({ storage }).array('images', 4);
 
 // Imgur 이미지 업로드 함수
 async function uploadToImgur(buffer) {
@@ -51,7 +53,7 @@ async function uploadToImgur(buffer) {
   }
 }
 
-// 다중 이미지 업로드
+// 이미지 업로드 엔드포인트
 post.post('/images', upload, async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -96,10 +98,16 @@ post.get('/', async (req, res) => {
 post.get('/update/:id', async (req, res) => {
   await dataCtrl();
   const { id } = req.params;
+
+  // ID가 없거나 유효하지 않은 경우 빈 배열 반환
+  if (!id || !ObjectId.isValid(id)) {
+    return res.json([]);
+  }
+
   try {
     const postItem = await postCollection.findOne({ _id: new ObjectId(id) });
     if (!postItem) {
-      return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
+      return res.json([]);
     }
     res.json(postItem);
   } catch (error) {
@@ -173,6 +181,9 @@ post.delete('/:id', async (req, res) => {
     }
 
     await commentCollection.deleteMany({ postId: id });
+    await replyCollection.deleteMany({ postId: id }); // reply 댓글 삭제
+    const likeCollection = client.db('JejuDB').collection('like');
+    await likeCollection.deleteMany({ postId: id }); // like 삭제
 
     res.json({ message: '게시글 삭제 성공' });
   } catch (error) {
@@ -215,7 +226,7 @@ post.get('/comment/:postId', async (req, res) => {
   }
 });
 
-// 이미지 목록 조회 (게시글 ID 포함)
+// 이미지 목록 조회
 post.get('/images', async (req, res) => {
   await dataCtrl();
   const { page } = req.query;
