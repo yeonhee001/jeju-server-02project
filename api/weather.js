@@ -5,30 +5,23 @@ const { parse, format, subDays } = require('date-fns');
 
 const now = new Date();
 const hour = now.getHours();
-const minutes = now.getMinutes();
-
-const before = hour < 2 || (hour === 2 && minutes < 10);
-
+const minute = now.getMinutes();
+const before = hour < 2 || (hour === 2 && minute < 10);
 const base_date = format( before ? subDays(now, 1) : now, 'yyyyMMdd');
 
 const serviceKey = decodeURIComponent("K8Vk28tgFaV3Setxev%2FSjLml%2FGa%2BOdleeiTr7YuEGaq1mvhADIlqD3COKW4t5cP7b2%2FLYZQSsRsOgVfIQSd6HQ%3D%3D");
 
 function getBaseTime() {
-    const base = new Date(now); // 원본 보호
-    let hour = base.getHours();
-    let targetDate = new Date(base); // 최종 기준 시간 만들기
+    const base = new Date(now); // 기준 날짜 복사
 
-    if (hour >= 6 && hour < 18) {
-        targetDate.setHours(6, 0, 0, 0);
-    } else if (hour >= 18) {
-        targetDate.setHours(18, 0, 0, 0);
-    } else {
-        // 새벽 0시 ~ 오전 5시 59분 → 전날 18시
-        targetDate.setDate(targetDate.getDate() - 1);
-        targetDate.setHours(18, 0, 0, 0);
+    // 새벽 0시 ~ 6시 10분까지는 전날 6시로 설정
+    if (hour < 6 || (hour === 6 && minute <= 10)) {
+        base.setDate(base.getDate() - 1);
     }
 
-    return format(targetDate, 'yyyyMMddHHmm');
+    base.setHours(6, 0, 0, 0); // 시간은 무조건 06:00
+
+    return format(base, 'yyyyMMddHHmm'); // 예: "202504220600"
 }
 
 weather.get('/', async function (req, res) {
@@ -131,13 +124,13 @@ weather.get('/', async function (req, res) {
     })
 
     const data2 = getMidLandFcst?.data?.response?.body?.items?.item
-
+    
     const wfList = data2[0] && Object.entries(data2[0])
     .filter(([key, _]) => key.startsWith("wf") && !key.includes("Pm"))
     .reduce((acc, [key, value]) => {
         key = key.replace(/[^0-9]/g, "")
         acc[key] = value;
-
+        
         return acc;
     }, {});
 
