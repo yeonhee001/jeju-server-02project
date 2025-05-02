@@ -25,7 +25,7 @@ function getBaseTime() {
 }
 
 weather.get('/', async function (req, res) {
-    const getVilageFcst = await axios.get('http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst',{
+    const getVilageFcst = await axios.get('https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst',{
         params:{
             serviceKey,
             numOfRows : "1000",
@@ -113,7 +113,7 @@ weather.get('/', async function (req, res) {
     return !(Number.isNaN(item.tmn) && Number.isNaN(item.tmx)); //isNaN 숫자인지, 아닌지 Boolean값으로 알려줌
     });      
     const baseTime = getBaseTime();
-    const getMidLandFcst = await axios.get('http://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst',{
+    const getMidLandFcst = await axios.get('https://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst',{
         params:{
             serviceKey,
             numOfRows : "1000",
@@ -134,7 +134,7 @@ weather.get('/', async function (req, res) {
         return acc;
     }, {});
 
-    const getMidTa = await axios.get('http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa',{
+    const getMidTa = await axios.get('https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa',{
         params:{
             serviceKey, 
             numOfRows : "1000",
