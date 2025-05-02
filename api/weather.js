@@ -125,7 +125,7 @@ weather.get('/', async function (req, res) {
 
     const data2 = getMidLandFcst?.data?.response?.body?.items?.item
     
-    const wfList = data2[0] && Object.entries(data2[0])
+    const wfList = data2?.[0] && Object.entries(data2?.[0])
     .filter(([key, _]) => key.startsWith("wf") && !key.includes("Pm"))
     .reduce((acc, [key, value]) => {
         key = key.replace(/[^0-9]/g, "")
@@ -146,7 +146,7 @@ weather.get('/', async function (req, res) {
 
     const data3 = getMidTa?.data?.response?.body?.items?.item
 
-    const tempList = data3[0] && Object.entries(data3[0])
+    const tempList = data3?.[0] && Object.entries(data3?.[0])
     .filter(([key, _]) => !["regId", "Low", "High"].some(item=>key.includes(item)))
     .reduce((acc, [key, value]) => {
         acc[key] = value;
