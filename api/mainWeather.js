@@ -25,7 +25,7 @@ function getUltraSrtNcstBaseTime() {
 }
 
 mainWeather.get('/', async function (req, res) {
-    const getVilageFcst = await axios.get('http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst',{
+    const getVilageFcst = await axios.get('https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst',{
         params:{
             serviceKey,
             numOfRows : "1000",
@@ -87,7 +87,7 @@ mainWeather.get('/', async function (req, res) {
     });  
 
     const { base_date : Ultradate, base_time : Ultratime } = getUltraSrtNcstBaseTime();
-    const getUltraSrtNcst = await axios.get('http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst',{
+    const getUltraSrtNcst = await axios.get('https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst',{
         params:{
             serviceKey,
             numOfRows : "1000",
