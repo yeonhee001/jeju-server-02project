@@ -20,6 +20,7 @@ kakao.get('/', async function (req, res) {
     const redirect_uri = `${process.env.REDIRECT_URI}/authkakao`;
     
     const {code} = req.query;
+    
 
     // get token
     let kakao_token = await axios({
@@ -34,6 +35,8 @@ kakao.get('/', async function (req, res) {
     })
     let kakao_access_token = kakao_token.data.access_token;
 
+    console.log(kakao_access_token,"token")
+
     // get user
     let kakao_user = await axios({
         method: 'get',
@@ -43,7 +46,8 @@ kakao.get('/', async function (req, res) {
             'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
         }
     })
-
+    
+    console.log(kakao_user,'kakao_user==============')
     await dataCtrl();
 
     // userId 찾기. 있으면 1 없으면 0
